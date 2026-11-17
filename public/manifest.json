@@ -1,0 +1,26 @@
+{
+  "name": "Ceashyr — Kasir Kantin KWU HIMATEKPAL",
+  "short_name": "Ceashyr",
+  "description": "Aplikasi kasir PWA, manajemen katalog produk, pencatatan transaksi otomatis, dan rekap foto laporan (OCR) offline-first untuk Kantin KWU HIMATEKPAL ITS.",
+  "start_url": "/login",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFDF9",
+  "theme_color": "#EBF4E8",
+  "lang": "id-ID",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

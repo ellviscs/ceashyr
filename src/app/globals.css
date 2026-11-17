@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ceashyr-mint: #ebf4e8;
+  --ceashyr-cream: #fffdf9;
+  --ceashyr-forest: #465947;
+  --ceashyr-orange: #e86339;
+  --ceashyr-ink: #1f2024;
+}
+
+html,
+body {
+  background-color: var(--ceashyr-mint);
+  color: var(--ceashyr-ink);
+  -webkit-font-smoothing: antialiased;
+}
