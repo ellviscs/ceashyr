@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { resetAllDataToSeed } from "@/lib/storage/repository";
+import { dataProvider } from "@/services";
 
 const SPRINT1_ROUTES = [
   {
@@ -62,8 +62,8 @@ const SPRINT1_ROUTES = [
 export default function HomePage() {
   const [resetNotice, setResetNotice] = useState(false);
 
-  const handleReset = () => {
-    resetAllDataToSeed();
+  const handleReset = async () => {
+    await dataProvider.resetToSeed();
     setResetNotice(true);
     setTimeout(() => setResetNotice(false), 3000);
   };

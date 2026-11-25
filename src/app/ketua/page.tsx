@@ -3,67 +3,65 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
+import { KpiCard } from "@/components/ui/KpiCard";
 import { ProductCard } from "@/components/ui/ProductCard";
+import { RoleRestrictedView } from "@/components/ui/RoleRestrictedView";
+import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { SEED_PRODUCTS } from "@/constants/seed-data";
+import { useSession } from "@/hooks/useSession";
 import { formatRupiah } from "@/lib/formatters";
-import {
-  getOcrReports,
-  getProducts,
-  getSession,
-  getTransactions,
-} from "@/lib/storage/repository";
-import type { Product, SessionState } from "@/types";
+import { dataProvider } from "@/services";
+import type { Product } from "@/types";
 
 /**
  * Halaman Beranda Ketua KWU (US-04 — Task H-03).
  * Referensi Figma: Frame `1331:5698` & guard akses terbatas `1331:5947`.
  */
 export default function KetuaDashboardPage() {
-  const [session, setSession] = useState<SessionState | null>(null);
+  const { session } = useSession({ fallbackRole: "ketua_kwu" });
   const [products, setProducts] = useState<Product[]>(SEED_PRODUCTS);
   const [totalSales, setTotalSales] = useState(10500);
   const [trxCount, setTrxCount] = useState(1);
   const [reportCount, setReportCount] = useState(0);
 
   useEffect(() => {
-    setSession(getSession());
-    const loadedProducts = getProducts();
-    const loadedTrx = getTransactions();
-    const loadedReports = getOcrReports();
-    setProducts(loadedProducts);
-    setTrxCount(loadedTrx.length);
-    setTotalSales(loadedTrx.reduce((sum, t) => sum + t.totalAmount, 0));
-    setReportCount(loadedReports.length);
+    let active = true;
+    Promise.all([
+      dataProvider.products.list(),
+      dataProvider.transactions.list(),
+      dataProvider.ocr.listReports(),
+    ]).then(([loadedProducts, loadedTrx, loadedReports]) => {
+      if (!active) return;
+      setProducts(loadedProducts);
+      setTrxCount(loadedTrx.length);
+      setTotalSales(loadedTrx.reduce((sum, t) => sum + t.totalAmount, 0));
+      setReportCount(loadedReports.length);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   if (session?.role === "pengelola") {
     return (
-      <AppShell
+      <RoleRestrictedView
         role="pengelola"
-        activeNav="kasir"
         email={session.email}
-        title="Akses Terbatas"
-      >
-        <div className="max-w-xl rounded-[20px] bg-ceashyr-cream border border-ceashyr-amber-border p-6 shadow-ceashyr-card space-y-4">
-          <div className="rounded-xl bg-ceashyr-amber-bg border border-ceashyr-amber-border text-ceashyr-amber-ink px-4 py-3 text-sm font-medium">
-            Akses Terbatas: Halaman Beranda Ketua KWU hanya untuk Ketua KWU. Akun Pengelola/Kasir hanya memiliki akses Kasir, Rekap Kertas, dan Daftar Produk (Mode Lihat).
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/kasir"
-              className="px-4 py-2.5 rounded-xl bg-ceashyr-orange text-white text-xs font-semibold hover:brightness-105 transition"
-            >
-              Masuk ke Halaman Kasir →
-            </Link>
-            <Link
-              href="/produk?mode=pengelola"
-              className="px-4 py-2.5 rounded-xl bg-white border border-ceashyr-border text-ceashyr-ink text-xs font-semibold hover:bg-ceashyr-field transition"
-            >
-              Lihat Daftar Produk (Mode Pengelola) →
-            </Link>
-          </div>
-        </div>
-      </AppShell>
+        activeNav="kasir"
+        message="Akses Terbatas: Halaman Beranda Ketua KWU hanya untuk Ketua KWU. Akun Pengelola/Kasir hanya memiliki akses Kasir, Rekap Kertas, dan Daftar Produk (Mode Lihat)."
+        actions={[
+          {
+            label: "Masuk ke Halaman Kasir →",
+            href: "/kasir",
+            variant: "primary",
+          },
+          {
+            label: "Lihat Daftar Produk (Mode Pengelola) →",
+            href: "/produk?mode=pengelola",
+            variant: "secondary",
+          },
+        ]}
+      />
     );
   }
 
@@ -77,34 +75,25 @@ export default function KetuaDashboardPage() {
       <div className="space-y-5">
         {/* 4 Kartu KPI */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          <div className="rounded-[16px] bg-ceashyr-cream border border-ceashyr-border p-4 shadow-ceashyr-card">
-            <p className="text-xs text-ceashyr-muted">Total Penjualan</p>
-            <p className="text-xl font-bold text-ceashyr-ink mt-1">
-              {formatRupiah(totalSales, true)}
-            </p>
-          </div>
-          <div className="rounded-[16px] bg-ceashyr-cream border border-ceashyr-border p-4 shadow-ceashyr-card">
-            <p className="text-xs text-ceashyr-muted">Transaksi</p>
-            <p className="text-xl font-bold text-ceashyr-orange mt-1">
-              {trxCount} Nota
-            </p>
-          </div>
-          <div className="rounded-[16px] bg-ceashyr-cream border border-ceashyr-border p-4 shadow-ceashyr-card">
-            <p className="text-xs text-ceashyr-muted">Katalog Produk</p>
-            <p className="text-xl font-bold text-ceashyr-green mt-1">
-              {products.length} Item
-            </p>
-          </div>
-          <div className="rounded-[16px] bg-ceashyr-cream border border-ceashyr-border p-4 shadow-ceashyr-card">
-            <p className="text-xs text-ceashyr-muted">Rekap Kertas</p>
-            <p className="text-xl font-bold text-ceashyr-ink mt-1">
-              {reportCount} Laporan
-            </p>
-          </div>
+          <KpiCard
+            label="Total Penjualan"
+            value={formatRupiah(totalSales, true)}
+          />
+          <KpiCard
+            label="Transaksi"
+            value={`${trxCount} Nota`}
+            valueTone="orange"
+          />
+          <KpiCard
+            label="Katalog Produk"
+            value={`${products.length} Item`}
+            valueTone="green"
+          />
+          <KpiCard label="Rekap Kertas" value={`${reportCount} Laporan`} />
         </div>
 
         {/* Kartu Daftar Produk 3 Kolom */}
-        <section className="rounded-[20px] bg-ceashyr-cream border border-ceashyr-border p-5 md:p-6 shadow-ceashyr-card space-y-4">
+        <SurfaceCard as="section" className="p-5 md:p-6 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-base font-bold text-ceashyr-ink">
               Total Produk: {products.length} Produk
@@ -122,10 +111,10 @@ export default function KetuaDashboardPage() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        </section>
+        </SurfaceCard>
 
         {/* Aksi Cepat Ketua KWU */}
-        <section className="rounded-[20px] bg-ceashyr-cream border border-ceashyr-border p-5 md:p-6 shadow-ceashyr-card space-y-3">
+        <SurfaceCard as="section" className="p-5 md:p-6 space-y-3">
           <h2 className="text-base font-bold text-ceashyr-ink">
             Aksi Cepat Ketua KWU
           </h2>
@@ -180,7 +169,7 @@ export default function KetuaDashboardPage() {
               </p>
             </Link>
           </div>
-        </section>
+        </SurfaceCard>
       </div>
     </AppShell>
   );

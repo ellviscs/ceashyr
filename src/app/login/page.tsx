@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/storage/repository";
+import { dataProvider } from "@/services";
 import { SEED_ACCOUNTS } from "@/constants/seed-data";
 import type { LoginValidationErrors } from "@/types";
 
@@ -36,10 +36,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const res = login(email, password);
+    const res = await dataProvider.auth.login(email, password);
     if (res.ok) {
       router.push(res.redirectPath);
       return;

@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  getNavRoutesForRole,
+  type NavIconName,
+  type NavKey,
+} from "@/config/navigation";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { dataProvider } from "@/services";
 import type { UserRole } from "@/types";
-import { logout } from "@/lib/storage/repository";
 import {
   AvatarSilhouetteIcon,
   CashierCartIcon,
@@ -15,14 +21,7 @@ import {
   SalesReportIcon,
 } from "@/components/layout/SidebarIcons";
 
-export type ActiveNavKey = "beranda" | "produk" | "kasir" | "rekap" | "laporan";
-
-interface NavItemConfig {
-  key: ActiveNavKey;
-  label: string;
-  href: string;
-  renderIcon: (active: boolean) => React.ReactNode;
-}
+export type ActiveNavKey = NavKey;
 
 interface AppShellProps {
   role: UserRole;
@@ -36,62 +35,19 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
-function getNavItemsForRole(role: UserRole): NavItemConfig[] {
-  if (role === "ketua_kwu") {
-    return [
-      {
-        key: "beranda",
-        label: "Beranda",
-        href: "/ketua",
-        renderIcon: (active) => <DashboardGridIcon active={active} />,
-      },
-      {
-        key: "produk",
-        label: "Produk",
-        href: "/produk",
-        renderIcon: (active) => <ProductCubeIcon active={active} />,
-      },
-      {
-        key: "kasir",
-        label: "Kasir",
-        href: "/kasir",
-        renderIcon: (active) => <CashierCartIcon active={active} />,
-      },
-      {
-        key: "rekap",
-        label: "Rekap",
-        href: "/rekap-kertas",
-        renderIcon: (active) => <PaperOcrCameraIcon active={active} />,
-      },
-      {
-        key: "laporan",
-        label: "Laporan",
-        href: "/laporan",
-        renderIcon: (active) => <SalesReportIcon active={active} />,
-      },
-    ];
+function renderNavIcon(icon: NavIconName, active: boolean): React.ReactNode {
+  switch (icon) {
+    case "dashboard":
+      return <DashboardGridIcon active={active} />;
+    case "product":
+      return <ProductCubeIcon active={active} />;
+    case "cashier":
+      return <CashierCartIcon active={active} />;
+    case "ocr":
+      return <PaperOcrCameraIcon active={active} />;
+    case "report":
+      return <SalesReportIcon active={active} />;
   }
-
-  return [
-    {
-      key: "kasir",
-      label: "Kasir",
-      href: "/kasir",
-      renderIcon: (active) => <CashierCartIcon active={active} />,
-    },
-    {
-      key: "rekap",
-      label: "Rekap",
-      href: "/rekap-kertas",
-      renderIcon: (active) => <PaperOcrCameraIcon active={active} />,
-    },
-    {
-      key: "produk",
-      label: "Produk",
-      href: "/produk?mode=pengelola",
-      renderIcon: (active) => <ProductCubeIcon active={active} />,
-    },
-  ];
 }
 
 /**
@@ -111,21 +67,9 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const router = useRouter();
-  const [isOnline, setIsOnline] = useState(true);
+  const isOnline = useOnlineStatus();
 
-  useEffect(() => {
-    setIsOnline(typeof navigator !== "undefined" ? navigator.onLine : true);
-    const goOnline = () => setIsOnline(true);
-    const goOffline = () => setIsOnline(false);
-    window.addEventListener("online", goOnline);
-    window.addEventListener("offline", goOffline);
-    return () => {
-      window.removeEventListener("online", goOnline);
-      window.removeEventListener("offline", goOffline);
-    };
-  }, []);
-
-  const navItems = getNavItemsForRole(role);
+  const navItems = getNavRoutesForRole(role);
   const resolvedEmail =
     email || (role === "ketua_kwu" ? "ketuakwu@gmail.com" : "kasir@gmail.com");
   const roleLabel =
@@ -133,12 +77,12 @@ export function AppShell({
       ? `Peran Aktif: Ketua KWU • ${resolvedEmail}`
       : `Peran Aktif: Pengelola / Kasir • ${resolvedEmail}`;
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (onLogout) {
       onLogout();
       return;
     }
-    logout();
+    await dataProvider.auth.logout();
     router.push("/login");
   };
 
@@ -176,7 +120,7 @@ export function AppShell({
                       : "bg-white border-ceashyr-border hover:border-ceashyr-orange/50"
                   }`}
                 >
-                  {item.renderIcon(isActive)}
+                  {renderNavIcon(item.icon, isActive)}
                 </Link>
               );
             })}
@@ -314,7 +258,7 @@ export function AppShell({
                   : "text-ceashyr-ink"
               }`}
             >
-              {item.renderIcon(isActive)}
+              {renderNavIcon(item.icon, isActive)}
               <span>{item.label}</span>
             </Link>
           );
