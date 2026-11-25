@@ -53,6 +53,7 @@ Tujuan utamanya: menjaga konsistensi arsitektur, mencegah *merge conflict* saat 
 
 4. **Konsistensi UI, Design System & Responsivitas**
    - Gunakan ulang primitif UI di `src/components/ui/` (`SurfaceCard`, `StatusBanner`, `KpiCard`, `ProductCard`, `RoleRestrictedView`) serta token warna `ceashyr-*` (lihat `docs/03-DESIGN-SYSTEM-FIGMA.md`).
+   - Pastikan seluruh direktori UI (`src/app`, `src/components`, `src/features`) tercakup di `content` pada `tailwind.config.ts` dan selalu tulis kelas Tailwind sebagai string utuh (hindari interpolasi string dinamis seperti `` `lg:col-span-${n}` ``).
    - Setiap layar baru wajib responsif di Tablet (`1280×800`) dan Mobile HP (`<768px`) dengan copywriting bahasa Indonesia yang konsisten.
 
 5. **Aturan Next.js App Router & PWA Offline-First**
