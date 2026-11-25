@@ -91,10 +91,6 @@ export function AppShell({
       {/* Sidebar Tablet / Desktop (84px width sesuai Figma 1331:4912) */}
       <aside className="hidden md:flex md:flex-col md:justify-between md:w-[84px] md:min-h-screen bg-ceashyr-cream border-r border-ceashyr-border py-5 px-5 shrink-0 sticky top-0 h-screen">
         <div className="flex flex-col items-center">
-          <span className="text-[11px] font-semibold tracking-tight text-ceashyr-ink mb-4">
-            9:41
-          </span>
-
           <div
             className="mb-6"
             title={role === "ketua_kwu" ? "Ketua KWU" : "Pengelola / Kasir"}
