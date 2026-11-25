@@ -31,11 +31,11 @@ const SPRINT1_ROUTES = [
   },
   {
     code: "US-05 & US-06",
-    title: "Kasir — Pencatatan Penjualan",
+    title: "Kasir — Rekap Sisa Stok Tutup Toko",
     href: "/kasir",
     figmaRef: "Section 1331:6270 (Frames 1338:4925..5211)",
     taskDoc: "docs/tasks/T-03-US05-SALES-POS.md",
-    desc: "Pilih barang 3 kolom, atur jumlah di Keranjang Transaksi, hitung total otomatis, dan kurangi stok saat disimpan.",
+    desc: "Input sisa stok fisik harian (Stok Memori − Sisa Stok), hitung penjualan otomatis, dan simpan rekap sekali sebelum toko ditutup.",
   },
   {
     code: "US-16",

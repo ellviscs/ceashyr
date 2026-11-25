@@ -2,125 +2,134 @@
 
 import React, { useRef } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { ProductCard } from "@/components/ui/ProductCard";
 import { StatusBanner } from "@/components/ui/StatusBanner";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
+import { ClosingReceipt } from "@/features/pos/components/ClosingReceipt";
+import { ClosingStockCard } from "@/features/pos/components/ClosingStockCard";
 import {
-  CartPanel,
-  MobileCartFloatingBar,
-} from "@/features/pos/components/CartPanel";
-import { TransactionReceipt } from "@/features/pos/components/TransactionReceipt";
-import { useCart } from "@/features/pos/hooks/useCart";
+  ClosingSummaryPanel,
+  MobileClosingFloatingBar,
+} from "@/features/pos/components/ClosingSummaryPanel";
+import { useDailyClosing } from "@/features/pos/hooks/useDailyClosing";
 import { useSession } from "@/hooks/useSession";
 
 /**
- * Halaman Kasir — Pencatatan Penjualan (US-05 & US-06 — Tasks H-07 & H-08).
- * Referensi Figma: Section `1331:6270` (`1338:4925`, `1338:5007`, `1338:5097`, `1338:5211`).
+ * Halaman Kasir — Pencatatan Penjualan Harian via Sisa Stok Tutup Toko (US-05 & US-06).
+ * Rumus: Terjual = Stok di Memori − Sisa Stok Hari Ini, dicatat 1× sebelum toko ditutup.
  */
 export default function KasirPage() {
-  const cartRef = useRef<HTMLDivElement | null>(null);
+  const summaryRef = useRef<HTMLDivElement | null>(null);
   const { role, email } = useSession({ fallbackRole: "pengelola" });
   const {
+    todayKey,
     products,
-    cart,
-    lastTransaction,
-    cartError,
+    todayClosing,
+    isAlreadyClosedToday,
+    rows,
+    soldRows,
+    totalSoldItems,
+    totalRevenue,
+    hasValidationErrors,
+    submitError,
     isSaving,
-    totalItems,
-    totalAmount,
-    addToCart,
-    updateQty,
-    saveTransaction,
-    startNewSale,
-  } = useCart();
+    setRemainingInput,
+    stepRemaining,
+    resetDraft,
+    submitDailyClosing,
+  } = useDailyClosing();
 
   return (
     <AppShell
       role={role}
       activeNav="kasir"
       email={email}
-      title="Kasir — Pencatatan Penjualan"
+      title="Kasir — Tutup Toko & Rekap Sisa Stok"
+      subtitle="Hitung penjualan harian otomatis dari selisih stok sistem dan sisa stok fisik sebelum toko ditutup (1× / hari)"
+      headerRightSlot={
+        <span
+          className={`px-3.5 py-1.5 rounded-full border text-xs font-semibold ${
+            isAlreadyClosedToday
+              ? "bg-ceashyr-green-soft border-ceashyr-green text-ceashyr-green"
+              : "bg-ceashyr-amber-bg border-ceashyr-amber-border text-ceashyr-amber-ink"
+          }`}
+        >
+          {isAlreadyClosedToday
+            ? "Sudah Tutup Toko Hari Ini"
+            : "Belum Tutup Toko • 1× / Hari"}
+        </span>
+      }
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* Katalog Produk Kantin */}
+        {/* Daftar Produk & Input Sisa Stok Fisik Hari Ini */}
         <SurfaceCard as="section" className="lg:col-span-8 p-5 md:p-6 space-y-4">
-          <h2 className="text-base font-bold text-ceashyr-ink">
-            {lastTransaction
-              ? "Pilih Produk Kantin — Stok Diperbarui Otomatis"
-              : `Pilih Produk Kantin (Total Produk: ${products.length} Produk)`}
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-base font-bold text-ceashyr-ink">
+              {isAlreadyClosedToday
+                ? "Stok Akhir Tersimpan — Tutup Toko Hari Ini Selesai"
+                : `Input Sisa Stok Hari Ini (${products.length} Produk)`}
+            </h2>
+            <span className="text-xs font-medium text-ceashyr-muted">
+              Terjual = Stok Memori − Sisa Stok
+            </span>
+          </div>
 
-          {lastTransaction && (
+          {isAlreadyClosedToday && todayClosing && (
             <StatusBanner variant="success">
-              ✓ Transaksi {lastTransaction.code} berhasil disimpan! Stok produk
-              otomatis berkurang sesuai jumlah terjual.
+              ✓ Penjualan hari ini ({todayClosing.code}) sudah dicatat sebelum
+              tutup toko. Stok sistem telah diperbarui sesuai sisa stok fisik.
             </StatusBanner>
           )}
 
-          {cartError && (
+          {submitError && (
             <StatusBanner variant="error" className="py-2.5 text-xs">
-              {cartError}
+              {submitError}
             </StatusBanner>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map((product) => {
-              const inCart = cart.find((c) => c.productId === product.id);
-              const qty = inCart?.qty ?? 0;
-
-              let badgeText = "+ Tambah";
-              let badgeVariant: "orange" | "green" | "muted" = "orange";
-              if (product.stock === 0) {
-                badgeText = "Habis";
-                badgeVariant = "muted";
-              } else if (qty > 0) {
-                badgeText = qty === 1 ? "Dipilih (1)" : `Dipilih ${qty}x`;
-                badgeVariant = "green";
-              }
-
-              return (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  selected={qty > 0}
-                  badgeText={badgeText}
-                  badgeVariant={badgeVariant}
-                  disabled={product.stock === 0}
-                  onClick={() => addToCart(product)}
-                />
-              );
-            })}
+            {rows.map((row) => (
+              <ClosingStockCard
+                key={row.product.id}
+                row={row}
+                locked={isAlreadyClosedToday}
+                onChangeRemaining={(val) =>
+                  setRemainingInput(row.product.id, val)
+                }
+                onStepRemaining={(delta) =>
+                  stepRemaining(row.product.id, delta)
+                }
+              />
+            ))}
           </div>
         </SurfaceCard>
 
-        {/* Panel Kanan: Keranjang Transaksi atau Nota Tersimpan */}
-        <div ref={cartRef} className="lg:col-span-4">
+        {/* Panel Kanan: Ringkasan Tutup Toko atau Nota Terkunci */}
+        <div ref={summaryRef} className="lg:col-span-4">
           <SurfaceCard as="aside" className="p-5 space-y-4">
-            {lastTransaction && cart.length === 0 ? (
-              <TransactionReceipt
-                transaction={lastTransaction}
-                onNewSale={startNewSale}
-              />
+            {isAlreadyClosedToday && todayClosing ? (
+              <ClosingReceipt transaction={todayClosing} role={role} />
             ) : (
-              <CartPanel
-                cart={cart}
-                totalItems={totalItems}
-                totalAmount={totalAmount}
+              <ClosingSummaryPanel
+                todayKey={todayKey}
+                soldRows={soldRows}
+                totalSoldItems={totalSoldItems}
+                totalRevenue={totalRevenue}
+                hasValidationErrors={hasValidationErrors}
                 isSaving={isSaving}
-                onUpdateQty={updateQty}
-                onSave={() => saveTransaction(email)}
+                onResetDraft={resetDraft}
+                onSubmit={() => submitDailyClosing(email)}
               />
             )}
           </SurfaceCard>
         </div>
       </div>
 
-      {cart.length > 0 && (
-        <MobileCartFloatingBar
-          totalItems={totalItems}
-          totalAmount={totalAmount}
-          onScrollToCart={() =>
-            cartRef.current?.scrollIntoView({
+      {!isAlreadyClosedToday && totalSoldItems > 0 && (
+        <MobileClosingFloatingBar
+          totalSoldItems={totalSoldItems}
+          totalRevenue={totalRevenue}
+          onScrollToSummary={() =>
+            summaryRef.current?.scrollIntoView({
               behavior: "smooth",
               block: "start",
             })

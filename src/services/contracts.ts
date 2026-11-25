@@ -2,6 +2,8 @@ import type {
   AddProductResult,
   CartItem,
   CreateTransactionResult,
+  DailyClosingInput,
+  DailyClosingResult,
   LoginResult,
   OcrExtractedItem,
   OcrReportRecord,
@@ -48,6 +50,8 @@ export interface TransactionRepository {
     items: CartItem[],
     cashierEmail?: string
   ): Promise<CreateTransactionResult>;
+  getDailyClosing(dateKey: string): Promise<Transaction | null>;
+  recordDailyClosing(input: DailyClosingInput): Promise<DailyClosingResult>;
 }
 
 /**
