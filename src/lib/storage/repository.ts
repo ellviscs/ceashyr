@@ -4,6 +4,8 @@ import type {
   OcrReportRecord,
   Product,
   ProductFormInput,
+  ReportPeriodType,
+  SalesReportData,
   SessionState,
   Transaction,
   UserAccount,
@@ -17,6 +19,7 @@ import {
   SEED_PRODUCTS,
   SEED_TRANSACTIONS,
 } from "@/constants/seed-data";
+import { buildSalesReport } from "@/lib/reports/sales-report";
 import { authenticateAccount, validateLoginInput, validateProductForm } from "@/lib/validators";
 import { STORAGE_KEYS } from "@/lib/storage/storage-keys";
 
@@ -376,6 +379,24 @@ export function saveDigitalOcrReport(
 
   writeJson(STORAGE_KEYS.OCR_REPORTS, [saved, ...reports]);
   return saved;
+}
+
+/**
+ * Mengambil dan merekap data laporan penjualan harian/mingguan dari database lokal (US-15).
+ */
+export function getSalesReportData(
+  periodType: ReportPeriodType,
+  anchorDateKey: string,
+  includeOcrReports = false
+): SalesReportData {
+  return buildSalesReport({
+    periodType,
+    anchorDateKey,
+    transactions: getTransactions(),
+    ocrReports: getOcrReports(),
+    includeOcrReports,
+    session: getSession(),
+  });
 }
 
 /**

@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useId } from "react";
 
 interface IconProps {
   active?: boolean;
@@ -7,9 +9,14 @@ interface IconProps {
 
 /**
  * Avatar kontak default lingkaran dengan siluet orang (#E86339 di latar #FDECE6).
- * Diekstrak dari Figma node `1331:5701`.
+ * Diekstrak dari Figma node `1331:5701`, memakai clipPath ID unik per instance.
  */
 export function AvatarSilhouetteIcon({ className }: { className?: string }) {
+  const clipId = useId();
+  const svgClassName = ["rounded-full overflow-hidden", className]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <svg
       width="44"
@@ -17,10 +24,10 @@ export function AvatarSilhouetteIcon({ className }: { className?: string }) {
       viewBox="0 0 44 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={svgClassName}
       aria-hidden="true"
     >
-      <g clipPath="url(#clip0_1331_5701)">
+      <g clipPath={`url(#${clipId})`}>
         <rect width="44" height="44" rx="22" fill="#FDECE6" />
         <path
           d="M22 23C25.866 23 29 19.866 29 16C29 12.134 25.866 9 22 9C18.134 9 15 12.134 15 16C15 19.866 18.134 23 22 23Z"
@@ -41,7 +48,7 @@ export function AvatarSilhouetteIcon({ className }: { className?: string }) {
         strokeWidth="1.5"
       />
       <defs>
-        <clipPath id="clip0_1331_5701">
+        <clipPath id={clipId}>
           <rect width="44" height="44" rx="22" fill="white" />
         </clipPath>
       </defs>
@@ -183,6 +190,45 @@ export function PaperOcrCameraIcon({ active = false, className }: IconProps) {
         d="M10 13.3333C11.3807 13.3333 12.5 12.214 12.5 10.8333C12.5 9.45262 11.3807 8.33333 10 8.33333C8.61929 8.33333 7.5 9.45262 7.5 10.8333C7.5 12.214 8.61929 13.3333 10 13.3333Z"
         stroke={stroke}
         strokeWidth="1.66667"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Ikon Laporan Penjualan (khusus Ketua KWU — US-15).
+ */
+export function SalesReportIcon({ active = false, className }: IconProps) {
+  const stroke = active ? "#E86339" : "#1F2024";
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        d="M12.5 2.5H5C4.55797 2.5 4.13405 2.67559 3.82149 2.98816C3.50893 3.30072 3.33333 3.72464 3.33333 4.16667V15.8333C3.33333 16.2754 3.50893 16.6993 3.82149 17.0118C4.13405 17.3244 4.55797 17.5 5 17.5H15C15.442 17.5 15.866 17.3244 16.1785 17.0118C16.4911 16.6993 16.6667 16.2754 16.6667 15.8333V6.66667L12.5 2.5Z"
+        stroke={stroke}
+        strokeWidth="1.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12.5 2.5V6.66667H16.6667"
+        stroke={stroke}
+        strokeWidth="1.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6.66667 14.1667V11.6667M10 14.1667V9.16667M13.3333 14.1667V10.8333"
+        stroke={stroke}
+        strokeWidth="1.66667"
+        strokeLinecap="round"
       />
     </svg>
   );
