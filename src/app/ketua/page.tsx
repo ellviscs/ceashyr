@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import { RoleRestrictedView } from "@/components/ui/RoleRestrictedView";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { SEED_PRODUCTS } from "@/constants/seed-data";
+import { StockAlertBanner } from "@/features/products/components/StockAlertBanner";
 import { useSession } from "@/hooks/useSession";
 import { formatRupiah } from "@/lib/formatters";
 import { dataProvider } from "@/services";
@@ -91,6 +92,9 @@ export default function KetuaDashboardPage() {
           />
           <KpiCard label="Rekap Kertas" value={`${reportCount} Laporan`} />
         </div>
+
+        {/* Peringatan Stok Minimum */}
+        <StockAlertBanner products={products} />
 
         {/* Kartu Daftar Produk 3 Kolom */}
         <SurfaceCard as="section" className="p-5 md:p-6 space-y-4">

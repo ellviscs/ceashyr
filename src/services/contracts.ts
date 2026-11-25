@@ -9,9 +9,11 @@ import type {
   OcrReportRecord,
   Product,
   ProductFormInput,
+  ProductUpdateInput,
   RegisterResult,
   SessionState,
   Transaction,
+  UpdateProductResult,
   UserAccount,
   UserRole,
 } from "@/types";
@@ -39,6 +41,7 @@ export interface ProductRepository {
   list(): Promise<Product[]>;
   getById(id: string): Promise<Product | undefined>;
   create(input: ProductFormInput): Promise<AddProductResult>;
+  update(id: string, input: ProductUpdateInput): Promise<UpdateProductResult>;
 }
 
 /**

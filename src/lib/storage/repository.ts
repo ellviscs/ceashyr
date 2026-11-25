@@ -19,6 +19,7 @@ import {
   addProductSync,
   getProductByIdSync,
   getProductsSync,
+  updateProductSync,
 } from "@/services/adapters/local-storage/product.repo";
 import {
   createTransactionSync,
@@ -31,6 +32,7 @@ import type {
   Product,
   ProductFormErrors,
   ProductFormInput,
+  ProductUpdateInput,
   ReportPeriodType,
   SalesReportData,
   SessionState,
@@ -108,6 +110,16 @@ export function addProduct(
   | { ok: true; product: Product; products: Product[] }
   | { ok: false; errors: ProductFormErrors } {
   return addProductSync(input);
+}
+
+/** @deprecated Gunakan `dataProvider.products.update()` */
+export function updateProduct(
+  id: string,
+  input: ProductUpdateInput
+):
+  | { ok: true; product: Product; products: Product[] }
+  | { ok: false; errors: ProductFormErrors } {
+  return updateProductSync(id, input);
 }
 
 // ---------------------------------------------------------------------------

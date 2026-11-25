@@ -1,6 +1,7 @@
 import React from "react";
-import type { Product } from "@/types";
+import { getProductStockStatus } from "@/features/products/stock-status";
 import { formatRupiah, formatStockLabel } from "@/lib/formatters";
+import type { Product } from "@/types";
 
 interface ProductCardProps {
   product: Product;
@@ -20,20 +21,45 @@ const BADGE_CLASSES = {
 
 /**
  * Kartu produk horizontal kotak sesuai desain `#465947` pada Figma `1331:4912`.
- * - Nama produk di kiri atas, badge opsional di kanan atas (`BARU`, `Dipilih`, `+ Tambah`)
- * - Harga jual (`Rp4.000`) di kiri bawah, sisa stok (`Stok 15`) sejajar di kanan bawah
+ * Menampilkan penanda otomatis `Habis` / `Menipis` saat stok mencapai atau di bawah `minStock`.
  */
 export function ProductCard({
   product,
   selected = false,
   badgeText,
-  badgeVariant = "orange",
+  badgeVariant,
   rightSubtleLabel,
   onClick,
   disabled = false,
 }: ProductCardProps) {
+  const stockStatus = getProductStockStatus(product.stock, product.minStock);
   const isNewHighlighted = product.isNew && !selected;
-  const resolvedBadge = badgeText ?? (product.isNew ? "BARU" : undefined);
+
+  let autoBadge: string | undefined;
+  let autoVariant: "orange" | "green" | "muted" = "orange";
+  if (product.isNew) {
+    autoBadge = "BARU";
+    autoVariant = "green";
+  } else if (stockStatus === "out") {
+    autoBadge = "Habis";
+    autoVariant = "muted";
+  } else if (stockStatus === "low") {
+    autoBadge = "Menipis";
+    autoVariant = "orange";
+  }
+
+  const resolvedBadge = badgeText ?? autoBadge;
+  const resolvedVariant = badgeVariant ?? (badgeText ? "orange" : autoVariant);
+
+  const ringClass = selected
+    ? "ring-2 ring-ceashyr-orange border-2 border-ceashyr-orange"
+    : isNewHighlighted
+      ? "ring-2 ring-ceashyr-green border-2 border-ceashyr-green"
+      : stockStatus === "out"
+        ? "border-2 border-ceashyr-red"
+        : stockStatus === "low"
+          ? "border-2 border-ceashyr-amber-border"
+          : "border border-transparent";
 
   const Wrapper = onClick ? "button" : "div";
 
@@ -42,13 +68,7 @@ export function ProductCard({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       disabled={onClick ? disabled : undefined}
-      className={`w-full h-[148px] rounded-[16px] bg-ceashyr-forest px-5 py-[18px] flex flex-col justify-between text-left shadow-ceashyr-box transition-all ${
-        selected
-          ? "ring-2 ring-ceashyr-orange border-2 border-ceashyr-orange"
-          : isNewHighlighted
-            ? "ring-2 ring-ceashyr-green border-2 border-ceashyr-green"
-            : "border border-transparent"
-      } ${
+      className={`w-full h-[148px] rounded-[16px] bg-ceashyr-forest px-5 py-[18px] flex flex-col justify-between text-left shadow-ceashyr-box transition-all ${ringClass} ${
         onClick && !disabled
           ? "cursor-pointer hover:brightness-110 active:scale-[0.99]"
           : ""
@@ -62,7 +82,7 @@ export function ProductCard({
         {resolvedBadge && (
           <span
             className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide ${
-              BADGE_CLASSES[badgeVariant]
+              BADGE_CLASSES[resolvedVariant]
             }`}
           >
             {resolvedBadge}

@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { DailyClosingRow } from "@/features/pos/hooks/useDailyClosing";
+import { getProductStockStatus } from "@/features/products/stock-status";
 import { formatRupiah } from "@/lib/formatters";
 
 interface ClosingStockCardProps {
@@ -31,6 +32,7 @@ export function ClosingStockCard({
   } = row;
   const isOutOfStock = openingStock === 0;
   const isInputDisabled = locked || isOutOfStock;
+  const stockStatus = getProductStockStatus(openingStock, product.minStock);
 
   let badgeText = "0 Terjual";
   let badgeClass = "bg-white/15 text-ceashyr-forest-sub";
@@ -43,6 +45,9 @@ export function ClosingStockCard({
   } else if (soldQty > 0) {
     badgeText = `Terjual ${soldQty} pcs`;
     badgeClass = "bg-ceashyr-orange text-white";
+  } else if (stockStatus === "low") {
+    badgeText = "Menipis";
+    badgeClass = "bg-ceashyr-amber-border text-white";
   }
 
   return (
@@ -73,7 +78,7 @@ export function ClosingStockCard({
             {formatRupiah(product.price, false)} / pcs
           </span>
           <span className="font-semibold text-white">
-            Stok Memori: {openingStock}
+            Stok: {openingStock} (Min {product.minStock})
           </span>
         </div>
       </div>
