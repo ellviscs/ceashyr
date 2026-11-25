@@ -12,9 +12,10 @@ import {
   LogoutDoorIcon,
   PaperOcrCameraIcon,
   ProductCubeIcon,
+  SalesReportIcon,
 } from "@/components/layout/SidebarIcons";
 
-export type ActiveNavKey = "beranda" | "produk" | "kasir" | "rekap";
+export type ActiveNavKey = "beranda" | "produk" | "kasir" | "rekap" | "laporan";
 
 interface NavItemConfig {
   key: ActiveNavKey;
@@ -61,6 +62,12 @@ function getNavItemsForRole(role: UserRole): NavItemConfig[] {
         label: "Rekap",
         href: "/rekap-kertas",
         renderIcon: (active) => <PaperOcrCameraIcon active={active} />,
+      },
+      {
+        key: "laporan",
+        label: "Laporan",
+        href: "/laporan",
+        renderIcon: (active) => <SalesReportIcon active={active} />,
       },
     ];
   }

@@ -45,6 +45,14 @@ const SPRINT1_ROUTES = [
     taskDoc: "docs/tasks/T-04-US16-OCR-PAPER-REPORT.md",
     desc: "Ambil/pilih foto laporan harian, konversi teks ke data digital, koreksi item, dan antrean offline lokal saat WiFi bermasalah.",
   },
+  {
+    code: "US-15",
+    title: "Laporan Penjualan Harian & Mingguan",
+    href: "/laporan",
+    figmaRef: "docs/desain-halaman-laporan-penjualan-US15.pdf",
+    taskDoc: "docs/01-PROJECT-OVERVIEW.md",
+    desc: "Filter periode harian/mingguan, rekap transaksi & produk, serta unduh laporan PDF resmi himpunan dan CSV/Excel.",
+  },
 ];
 
 /**

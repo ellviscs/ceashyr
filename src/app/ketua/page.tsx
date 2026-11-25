@@ -129,7 +129,7 @@ export default function KetuaDashboardPage() {
           <h2 className="text-base font-bold text-ceashyr-ink">
             Aksi Cepat Ketua KWU
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <Link
               href="/produk"
               className="rounded-xl bg-ceashyr-mint/70 border border-ceashyr-border p-4 hover:border-ceashyr-orange transition"
@@ -161,6 +161,22 @@ export default function KetuaDashboardPage() {
               </p>
               <p className="text-xs text-ceashyr-muted mt-1">
                 Konversi foto laporan ke digital (US-16)
+              </p>
+            </Link>
+            <Link
+              href="/laporan"
+              className="rounded-xl bg-ceashyr-peach/70 border border-ceashyr-orange/60 p-4 hover:border-ceashyr-orange transition"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-bold text-ceashyr-ink">
+                  Laporan Penjualan (PDF / CSV)
+                </p>
+                <span className="shrink-0 px-2 py-0.5 rounded-full bg-ceashyr-orange text-white text-[10px] font-bold">
+                  BARU
+                </span>
+              </div>
+              <p className="text-xs text-ceashyr-amber-ink mt-1">
+                Unduh rekap harian &amp; mingguan ke himpunan (US-15)
               </p>
             </Link>
           </div>
