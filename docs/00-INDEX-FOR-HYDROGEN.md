@@ -1,5 +1,8 @@
 # Panduan Kerja untuk Gemini Hydrogen (`ceashyr-pwa`)
 
+> [!NOTE]
+> Dokumen ini adalah arsip panduan eksekusi Sprint 1. Untuk aturan arsitektur modular terbaru dan panduan universal bagi seluruh AI coding agent tim, baca [`AGENT.md`](../AGENT.md), [`docs/05-AGILE-ARCHITECTURE-GUIDE.md`](05-AGILE-ARCHITECTURE-GUIDE.md), dan [`docs/06-TEAM-AGENT-WORKFLOW.md`](06-TEAM-AGENT-WORKFLOW.md).
+
 Dokumen ini menjadi titik masuk utama saat Anda (atau **Gemini Hydrogen**) mengerjakan implementasi fitur secara bertahap dan hemat token.
 
 ## 1. Aturan Wajib AI Agent (Baca Sebelum Edit)
