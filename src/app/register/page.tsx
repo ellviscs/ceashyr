@@ -3,7 +3,7 @@
 import React, { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { registerDemoAccount } from "@/lib/storage/repository";
+import { dataProvider } from "@/services";
 import type { UserRole } from "@/types";
 
 type RegisterStep = "form" | "otp";
@@ -60,14 +60,18 @@ function RegisterContent() {
     setRegStep("otp");
   };
 
-  const handleRegisterOtpSubmit = (e: React.FormEvent) => {
+  const handleRegisterOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     if (regOtp.trim().length < 4) {
       setErrorMsg("Masukkan 4 digit kode konfirmasi (contoh: 1234).");
       return;
     }
-    const res = registerDemoAccount(regEmail, regPassword, regRole);
+    const res = await dataProvider.auth.registerAccount(
+      regEmail,
+      regPassword,
+      regRole
+    );
     if (!res.ok) {
       setErrorMsg(res.error);
       return;
